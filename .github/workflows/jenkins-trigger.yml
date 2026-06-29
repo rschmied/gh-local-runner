@@ -16,5 +16,8 @@ jobs:
       - name: Trigger Jenkins Pipeline
         run: |
           # The curl command now uses the environment variables securely
-          curl -I -X POST "${JENKINS_URL}/job/${{ github.event.repository.name }}/build?delay=0sec" \
+          curl -I -X POST \
+               --connect-timeout 5 \
+               --max-time 5 \
+               "${JENKINS_URL}/job/${{ github.event.repository.name }}/build?delay=0sec" \
                --user "${JENKINS_USER}:${JENKINS_TOKEN}"
