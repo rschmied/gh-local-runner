@@ -1,7 +1,7 @@
 [project]
 name = "gh-runner"
 version = "0.1.0"
-description = "Add your description here"
+description = "GitHub Actions self-hosted runner bridge for Jenkins"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

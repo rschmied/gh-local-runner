@@ -1,9 +1,13 @@
 #!/bin/bash
-# entrypoint.sh
+set -euo pipefail
 
 # Configure the runner using environment variables passed to the container
-./config.sh --url https://github.com/${GH_OWNER}/${GH_REPO} \
-  --token ${GH_TOKEN} \
+: "${GH_OWNER:?GH_OWNER must be set}"
+: "${GH_REPO:?GH_REPO must be set}"
+: "${GH_TOKEN:?GH_TOKEN must be set}"
+
+./config.sh --url "https://github.com/${GH_OWNER}/${GH_REPO}" \
+  --token "${GH_TOKEN}" \
   --name "internal-jenkins-bridge" \
   --labels "jenkins-trigger" \
   --unattended \
@@ -12,10 +16,9 @@
 # Handle graceful shutdown on container stop
 cleanup() {
   echo "Removing runner..."
-  ./config.sh remove --token ${GH_TOKEN}
+  ./config.sh remove --token "${GH_TOKEN}" || true
 }
-trap 'cleanup; exit 130' INT
-trap 'cleanup; exit 143' TERM
+trap cleanup INT TERM
 
 ./run.sh &
-wait $!
+wait "$!"
