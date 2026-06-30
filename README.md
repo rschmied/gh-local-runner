@@ -36,6 +36,16 @@ with HTTP Basic Auth using the Jenkins user/token you configure in GitHub Secret
 - A GitHub repository where you can set Actions secrets
 - A Jenkins server/job to trigger
 
+## Security considerations
+
+This project is intentionally simple, but there are a few important security details:
+
+- **Fork PRs do not get secrets by default.** `JENKINS_URL`, `JENKINS_USER`, and `JENKINS_TOKEN` are only exposed to the workflow when GitHub provides them.
+- **Fork PRs can be configured to require approval.** When that setting is enabled, the workflow stays pending until you click the approval button in GitHub.
+- **The workflow in this repo is the one that runs.** GitHub uses the workflow file from the base repository for `pull_request` events, not the fork’s modified workflow file.
+- **This workflow does not checkout PR code.** That keeps forked PRs from influencing the commands that run here.
+- **`GH_PAT` lives on the machine running the container.** Treat it like a host secret, not a GitHub Actions secret.
+
 ## GitHub Actions secrets for the workflow
 
 The workflow in `.github/workflows/jenkins-trigger.yml` expects these secrets:
