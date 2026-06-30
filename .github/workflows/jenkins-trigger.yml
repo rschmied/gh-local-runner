@@ -5,19 +5,36 @@ on: [push, pull_request]
 jobs:
   ping-jenkins:
     runs-on: self-hosted  # Runs on your internal Ubuntu 24.04 container
-    
+
     # Inject the GitHub Secrets/Variables as Environment Variables
     env:
       JENKINS_URL: ${{ secrets.JENKINS_URL }}
       JENKINS_USER: ${{ secrets.JENKINS_USER }}
       JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
+      REPO_NAME: ${{ github.event.repository.name }}
 
     steps:
       - name: Trigger Jenkins Pipeline
         run: |
-          # The curl command now uses the environment variables securely
+          set -euo pipefail
+
+          tmp_netrc="$(mktemp)"
+          cleanup() {
+            rm -f "${tmp_netrc}"
+          }
+          trap cleanup EXIT
+
+          jenkins_host="${JENKINS_URL#*://}"
+          jenkins_host="${jenkins_host%%/*}"
+
+          printf "machine %s login %s password %s\n" \
+            "${jenkins_host}" \
+            "${JENKINS_USER}" \
+            "${JENKINS_TOKEN}" > "${tmp_netrc}"
+          chmod 600 "${tmp_netrc}"
+
           curl -I -X POST \
                --connect-timeout 5 \
                --max-time 5 \
-               "${JENKINS_URL}/job/${{ github.event.repository.name }}/build?delay=0sec" \
-               --user "${JENKINS_USER}:${JENKINS_TOKEN}"
+               --netrc-file "${tmp_netrc}" \
+               "${JENKINS_URL}/job/${REPO_NAME}/build?delay=0sec"

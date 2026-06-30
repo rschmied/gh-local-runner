@@ -12,6 +12,7 @@ set -euo pipefail
 : "${GH_OWNER:?GH_OWNER must be set}"
 : "${GH_REPO:?GH_REPO must be set}"
 : "${GH_TOKEN:?GH_TOKEN must be set}"
+: "${GH_PAT:?GH_PAT must be set}"
 
 # docker build -t github-runner .
 
@@ -20,4 +21,5 @@ docker run -d --name gh-runner \
   -e GH_OWNER="${GH_OWNER}" \
   -e GH_REPO="${GH_REPO}" \
   -e GH_TOKEN="${GH_TOKEN}" \
+  -e GH_PAT="${GH_PAT}" \
   github-runner

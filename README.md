@@ -67,11 +67,13 @@ The runner container is configured through these local environment variables whe
 | `GH_OWNER` | GitHub user or organization that owns the repository |
 | `GH_REPO` | Repository name the runner should register against |
 | `GH_TOKEN` | Temporary GitHub Actions runner registration token |
+| `GH_PAT` | GitHub personal access token used only to fetch a fresh runner removal token during shutdown |
 
 Important:
 
 - `GH_TOKEN` is **not** your GitHub personal access token.
 - It is the short-lived registration token you copy from GitHub when creating a self-hosted runner.
+- `GH_PAT` is used only for shutdown cleanup so the runner can request a fresh removal token from GitHub.
 - The runner is registered with the name `internal-jenkins-bridge` and the label `jenkins-trigger`.
 
 ### Start the runner locally
@@ -88,6 +90,7 @@ Important:
    export GH_OWNER=your-org-or-user
    export GH_REPO=your-repo
    export GH_TOKEN=the-temporary-runner-registration-token
+   export GH_PAT=your-github-pat
    ```
 
 3. Start the container:
@@ -118,7 +121,7 @@ If your Docker bridge uses a different interface name or your service listens on
 The workflow currently assumes the Jenkins job name matches the GitHub repository name:
 
 ```text
-${JENKINS_URL}/job/${github.event.repository.name}/build?delay=0sec
+${JENKINS_URL}/job/${REPO_NAME}/build?delay=0sec
 ```
 
 If your Jenkins job uses a different name or folder structure, update `.github/workflows/jenkins-trigger.yml` accordingly.

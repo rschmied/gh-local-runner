@@ -9,7 +9,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install basic dependencies
 RUN apt-get update && apt-get install -y \
     curl \
-    sudo \
     jq \
     build-essential \
     libssl-dev \
@@ -17,12 +16,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user for the runner to execute safely
-RUN useradd -m runner && usermod -aG sudo runner && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN useradd -m runner
 USER runner
 WORKDIR /home/runner
 
 # Download the specific runner package using the ARG
-RUN curl -o actions-runner-linux-x64.tar.gz -L "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz" \
+ARG RUNNER_SHA256=4ef2f25285f0ae4477f1fe1e346db76d2f3ebf03824e2ddd1973a2819bf6c8cf
+RUN curl -fsSL -o actions-runner-linux-x64.tar.gz "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz" \
+    && echo "${RUNNER_SHA256}  actions-runner-linux-x64.tar.gz" | sha256sum -c - \
     && tar xzf ./actions-runner-linux-x64.tar.gz \
     && rm actions-runner-linux-x64.tar.gz
 
