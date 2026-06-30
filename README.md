@@ -4,11 +4,11 @@ A small GitHub Actions self-hosted runner container that triggers a Jenkins job 
 
 ## Quick setup
 
-1. Set the GitHub Actions secrets used by the workflow: `JENKINS_URL`, `JENKINS_USER`, and `JENKINS_TOKEN`.
-2. Prepare a GitHub PAT for runner shutdown cleanup and export it as `GH_PAT` alongside `GH_OWNER`, `GH_REPO`, and the temporary runner registration token `GH_TOKEN`.
-3. Build the image and start the container with `./run.sh`.
+1. **In GitHub**: add the workflow secrets `JENKINS_URL`, `JENKINS_USER`, and `JENKINS_TOKEN` in the repository or organization settings.
+2. **On the machine that runs the container**: export `GH_OWNER`, `GH_REPO`, `GH_TOKEN`, and `GH_PAT` before starting the runner.
+3. **On the machine that runs the container**: build the image and start it with `./run.sh`.
 
-See the sections below for the exact commands and UI paths.
+See the sections below for the exact commands and UI paths for both GitHub and the local host.
 
 ## What this repo does
 
