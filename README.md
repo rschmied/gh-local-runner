@@ -44,6 +44,7 @@ This project is intentionally simple, but there are a few important security det
 - **Fork PRs can be configured to require approval.** When that setting is enabled, the workflow stays pending until you click the approval button in GitHub.
 - **The workflow in this repo is the one that runs.** GitHub uses the workflow file from the base repository for `pull_request` events, not the fork’s modified workflow file.
 - **This workflow does not checkout PR code.** That keeps forked PRs from influencing the commands that run here.
+- **Jenkins credentials are passed via a temporary curl config file, not on the command line.**
 - **`GH_PAT` lives on the machine running the container.** Treat it like a host secret, not a GitHub Actions secret.
 
 ## GitHub Actions secrets for the workflow

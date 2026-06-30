@@ -18,23 +18,21 @@ jobs:
         run: |
           set -euo pipefail
 
-          tmp_netrc="$(mktemp)"
+          tmp_cfg="$(mktemp)"
           cleanup() {
-            rm -f "${tmp_netrc}"
+            rm -f "${tmp_cfg}"
           }
           trap cleanup EXIT
 
-          jenkins_host="${JENKINS_URL#*://}"
-          jenkins_host="${jenkins_host%%/*}"
+          cat > "${tmp_cfg}" <<EOF
+          url = "${JENKINS_URL}/job/${REPO_NAME}/build?delay=0sec"
+          request = "POST"
+          connect-timeout = 5
+          max-time = 5
+          basic
+          user = "${JENKINS_USER}:${JENKINS_TOKEN}"
+          EOF
 
-          printf "machine %s login %s password %s\n" \
-            "${jenkins_host}" \
-            "${JENKINS_USER}" \
-            "${JENKINS_TOKEN}" > "${tmp_netrc}"
-          chmod 600 "${tmp_netrc}"
+          chmod 600 "${tmp_cfg}"
 
-          curl -I -X POST \
-               --connect-timeout 5 \
-               --max-time 5 \
-               --netrc-file "${tmp_netrc}" \
-               "${JENKINS_URL}/job/${REPO_NAME}/build?delay=0sec"
+          curl --config "${tmp_cfg}"
