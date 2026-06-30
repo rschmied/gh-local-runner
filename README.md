@@ -116,6 +116,30 @@ Use one of these:
 
 If the token does not have enough permission, the container will start, but shutdown cleanup will leave a stale runner registration behind.
 
+### How to create `GH_PAT`
+
+Create this token in your **GitHub account settings**, not in repository Actions secrets.
+
+#### Recommended: fine-grained personal access token
+
+1. In GitHub, open **Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens**.
+2. Click **Generate new token**.
+3. Set the token owner to your user or service account.
+4. Limit repository access to the repository that will host this runner.
+5. Under **Repository permissions**, set **Administration** to **Read and write**.
+6. Generate the token and copy it somewhere safe.
+
+#### Classic personal access token
+
+If you prefer a classic PAT instead:
+
+1. In GitHub, open **Settings -> Developer settings -> Personal access tokens**.
+2. Generate a classic token.
+3. Grant `repo` for private repositories, or `public_repo` for public repositories.
+4. Copy the token and store it safely.
+
+Use the resulting token as `GH_PAT` on the machine that runs the container.
+
 ### Start the runner locally
 
 1. Build the image:
