@@ -2,6 +2,14 @@
 
 A small GitHub Actions self-hosted runner container that triggers a Jenkins job for every push or pull request.
 
+## Quick setup
+
+1. Set the GitHub Actions secrets used by the workflow: `JENKINS_URL`, `JENKINS_USER`, and `JENKINS_TOKEN`.
+2. Prepare a GitHub PAT for runner shutdown cleanup and export it as `GH_PAT` alongside `GH_OWNER`, `GH_REPO`, and the temporary runner registration token `GH_TOKEN`.
+3. Build the image and start the container with `./run.sh`.
+
+See the sections below for the exact commands and UI paths.
+
 ## What this repo does
 
 The workflow in `.github/workflows/jenkins-trigger.yml` runs on a self-hosted runner. That runner is provided by the Docker image in this repository.
