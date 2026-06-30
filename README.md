@@ -28,9 +28,9 @@ with HTTP Basic Auth using the Jenkins user/token you configure in GitHub Secret
 - A GitHub repository where you can set Actions secrets
 - A Jenkins server/job to trigger
 
-## Required GitHub repository secrets
+## GitHub Actions secrets for the workflow
 
-The workflow expects these repository secrets to exist:
+The workflow in `.github/workflows/jenkins-trigger.yml` expects these secrets:
 
 | Secret | Purpose |
 | --- | --- |
@@ -38,25 +38,46 @@ The workflow expects these repository secrets to exist:
 | `JENKINS_USER` | Jenkins username used for authentication |
 | `JENKINS_TOKEN` | Jenkins API token or password for that user |
 
-These are referenced in the workflow as `secrets.JENKINS_URL`, `secrets.JENKINS_USER`, and `secrets.JENKINS_TOKEN`.
+You can store these at the **repository** level or the **organization** level.
 
-### Set them with the GitHub CLI
+### Repository-level secrets
 
-```bash
-gh secret set JENKINS_URL --body "https://jenkins.example.com" --repo OWNER/REPO
-gh secret set JENKINS_USER --body "jenkins-bot" --repo OWNER/REPO
-gh secret set JENKINS_TOKEN --body "your-jenkins-api-token" --repo OWNER/REPO
-```
+Use repository secrets if only this repo should trigger Jenkins.
 
-Replace `OWNER/REPO` with your repository name.
-
-### Or set them in the GitHub UI
-
-Go to:
+**GitHub UI:**
 
 `Repository -> Settings -> Secrets and variables -> Actions -> New repository secret`
 
-Create the three secrets with the exact names above.
+**GitHub CLI:**
+
+```bash
+gh secret set JENKINS_URL --repo OWNER/REPO --body "https://jenkins.example.com"
+gh secret set JENKINS_USER --repo OWNER/REPO --body "jenkins-bot"
+gh secret set JENKINS_TOKEN --repo OWNER/REPO --body "your-jenkins-api-token"
+```
+
+### Organization-level secrets
+
+Use organization secrets if multiple repositories should share the same Jenkins credentials.
+
+**GitHub UI:**
+
+`Organization -> Settings -> Secrets and variables -> Actions -> New organization secret`
+
+**GitHub CLI:**
+
+```bash
+# organization secrets require admin:org on the gh CLI
+# gh auth login --scopes admin:org
+
+gh secret set JENKINS_URL --org ORG_NAME --repos OWNER/REPO --body "https://jenkins.example.com"
+gh secret set JENKINS_USER --org ORG_NAME --repos OWNER/REPO --body "jenkins-bot"
+gh secret set JENKINS_TOKEN --org ORG_NAME --repos OWNER/REPO --body "your-jenkins-api-token"
+```
+
+If you use organization secrets, make sure the secret policy allows access to this repository.
+
+These values are referenced in the workflow as `secrets.JENKINS_URL`, `secrets.JENKINS_USER`, and `secrets.JENKINS_TOKEN`.
 
 ## Local runner setup
 
@@ -75,6 +96,17 @@ Important:
 - It is the short-lived registration token you copy from GitHub when creating a self-hosted runner.
 - `GH_PAT` is used only for shutdown cleanup so the runner can request a fresh removal token from GitHub.
 - The runner is registered with the name `internal-jenkins-bridge` and the label `jenkins-trigger`.
+
+### `GH_PAT` permissions
+
+Because the container removes the runner on shutdown, `GH_PAT` needs permission to call GitHub's repository self-hosted runner remove-token endpoint for this repo.
+
+Use one of these:
+
+- **Classic PAT:** `repo` scope for private repositories, or `public_repo` for public repositories
+- **Fine-grained PAT:** limit the token to this repository and grant **Repository permissions -> Administration -> Read and write**
+
+If the token does not have enough permission, the container will start, but shutdown cleanup will leave a stale runner registration behind.
 
 ### Start the runner locally
 
